@@ -12,18 +12,16 @@ int NUM_OF_ELEMENTS;
 int NUM_OF_TRIALS;
 char CONTAINER_TYPE;
 char OPERATION;
-int OBJECT_SIZE;
 
 class NonPrimitiveType
 {
 public:
-	vector<int> x;
+	int x[OBJECT_SIZE/4];
 	NonPrimitiveType()
 	{
-    x.reserve(OBJECT_SIZE/4);
     for(int i=0;i<OBJECT_SIZE/4;i++)
     {
-      x.push_back(i);
+      x[i] = i;
     }
 	}
 };
@@ -129,10 +127,10 @@ void iterate()
 int main(int argc, char *argv[])
 {
   NUM_OF_ELEMENTS = atoi(argv[1]);
-  OBJECT_SIZE = atoi(argv[2]);
-  CONTAINER_TYPE = *argv[3];
-  OPERATION = *argv[4];
-  NUM_OF_TRIALS = atoi(argv[5]);
+  //OBJECT_SIZE = atoi(argv[2]);
+  CONTAINER_TYPE = *argv[2];
+  OPERATION = *argv[3];
+  NUM_OF_TRIALS = atoi(argv[4]);
   
   switch(OPERATION)
   {
