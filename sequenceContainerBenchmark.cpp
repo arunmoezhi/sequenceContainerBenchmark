@@ -13,6 +13,7 @@ int NUM_OF_TRIALS;
 char CONTAINER_TYPE;
 char OPERATION;
 
+template<size_t OBJECT_SIZE>
 class NonPrimitiveType
 {
 public:
@@ -26,14 +27,14 @@ public:
 	}
 };
 
-template <typename T>
+template <typename T, size_t OBJECT_SIZE>
 void insertInToContainer()
 {
-  vector<NonPrimitiveType> containedElements;
+  vector<NonPrimitiveType<OBJECT_SIZE>> containedElements;
   containedElements.reserve(NUM_OF_ELEMENTS);
   for(int i=0;i<NUM_OF_ELEMENTS;i++)
   {
-    containedElements.push_back(*(new NonPrimitiveType));
+    containedElements.push_back(*(new NonPrimitiveType<OBJECT_SIZE>));
   }
   
   auto begin = chrono::high_resolution_clock::now();
@@ -47,39 +48,40 @@ void insertInToContainer()
 	}
   auto end = chrono::high_resolution_clock::now();
 	long long totalTime = chrono::duration_cast<chrono::nanoseconds>(end - begin).count() / (NUM_OF_TRIALS* NUM_OF_ELEMENTS);
-  printf("%d;%d;%c;%c;%lu\n",NUM_OF_ELEMENTS, OBJECT_SIZE, CONTAINER_TYPE, OPERATION, totalTime);
+  printf("%c;%c;%d;%d;%lu\n",CONTAINER_TYPE, OPERATION, NUM_OF_ELEMENTS, (int)OBJECT_SIZE, totalTime);
 }
 
+template<size_t OBJECT_SIZE>
 void insert()
 {
   switch(CONTAINER_TYPE)
   {
     case 'v' :
     {
-      insertInToContainer<vector<NonPrimitiveType>>();
+      insertInToContainer<vector<NonPrimitiveType<OBJECT_SIZE>>, OBJECT_SIZE>();
       break;
     }
     case 'l' :
     {
-      insertInToContainer<list<NonPrimitiveType>>();
+      insertInToContainer<list<NonPrimitiveType<OBJECT_SIZE>>, OBJECT_SIZE>();
       break;
     }
     case 'd' :
     {
-      insertInToContainer<deque<NonPrimitiveType>>();
+      insertInToContainer<deque<NonPrimitiveType<OBJECT_SIZE>>, OBJECT_SIZE>();
       break;
     }
   }
 }
 
-template <typename T>
+template <typename T, size_t OBJECT_SIZE>
 void iterateOnContainer()
 {
-  vector<NonPrimitiveType> containedElements;
+  vector<NonPrimitiveType<OBJECT_SIZE>> containedElements;
   containedElements.reserve(NUM_OF_ELEMENTS);
   for(int i=0;i<NUM_OF_ELEMENTS;i++)
   {
-    containedElements.push_back(*(new NonPrimitiveType));
+    containedElements.push_back(*(new NonPrimitiveType<OBJECT_SIZE>));
   }
   
   T container;
@@ -92,33 +94,34 @@ void iterateOnContainer()
   auto begin = chrono::high_resolution_clock::now();
 	for (int i=0;i<NUM_OF_TRIALS;i++)
 	{
-    for (const NonPrimitiveType& item : container)
+    for (const NonPrimitiveType<OBJECT_SIZE>& item : container)
     {
       hash = hash + item.x[1];
     }
 	}
   auto end = chrono::high_resolution_clock::now();
 	long long totalTime = chrono::duration_cast<chrono::nanoseconds>(end - begin).count() / NUM_OF_TRIALS;
-  printf("%d;%d;%c;%c;%lu;%llu\n",NUM_OF_ELEMENTS, OBJECT_SIZE, CONTAINER_TYPE, OPERATION, totalTime, hash);
+	printf("%c;%c;%d;%d;%lu;%llu\n",CONTAINER_TYPE, OPERATION, NUM_OF_ELEMENTS, (int)OBJECT_SIZE, totalTime, hash);
 }
 
+template<size_t OBJECT_SIZE>
 void iterate()
 {
   switch(CONTAINER_TYPE)
   {
     case 'v' :
     {
-      iterateOnContainer<vector<NonPrimitiveType>>();
+      iterateOnContainer<vector<NonPrimitiveType<OBJECT_SIZE>>, OBJECT_SIZE>();
       break;
     }
     case 'l' :
     {
-      iterateOnContainer<list<NonPrimitiveType>>();
+      iterateOnContainer<list<NonPrimitiveType<OBJECT_SIZE>>, OBJECT_SIZE>();
       break;
     }
     case 'd' :
     {
-      iterateOnContainer<deque<NonPrimitiveType>>();
+      iterateOnContainer<deque<NonPrimitiveType<OBJECT_SIZE>>, OBJECT_SIZE>();
       break;
     }
   }
@@ -127,7 +130,6 @@ void iterate()
 int main(int argc, char *argv[])
 {
   NUM_OF_ELEMENTS = atoi(argv[1]);
-  //OBJECT_SIZE = atoi(argv[2]);
   CONTAINER_TYPE = *argv[2];
   OPERATION = *argv[3];
   NUM_OF_TRIALS = atoi(argv[4]);
@@ -136,12 +138,20 @@ int main(int argc, char *argv[])
   {
     case 'a' :
     {
-      insert();
+      insert<16>();
+			insert<64>();
+			insert<256>();
+			insert<1024>();
+			insert<4096>();
       break;
     }
     case 'i' :
     {
-      iterate();
+      iterate<16>();
+			iterate<64>();
+			iterate<256>();
+			iterate<1024>();
+			iterate<4096>();
       break;
     }
   }  
