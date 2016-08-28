@@ -2,6 +2,8 @@
 #include <new>
 #include <chrono>
 #include <string>
+#include <algorithm>
+#include <random>
 #include <vector>
 #include <list>
 #include <forward_list>
@@ -127,6 +129,67 @@ void iterate()
   }
 }
 
+template <typename T, size_t OBJECT_SIZE>
+void searchOnContainer()
+{
+  vector<NonPrimitiveType<OBJECT_SIZE>> containedElements;
+  containedElements.reserve(NUM_OF_ELEMENTS);
+  for(int i=0;i<NUM_OF_ELEMENTS;i++)
+  {
+    containedElements.push_back(*(new NonPrimitiveType<OBJECT_SIZE>));
+  }
+
+	T container;
+	for (int i=0;i<NUM_OF_ELEMENTS;i++)
+	{
+		container.push_back(containedElements[i]);
+	}
+
+	vector<int> randomIndex;
+	randomIndex.reserve(NUM_OF_ELEMENTS);
+	for(int i=0;i<NUM_OF_ELEMENTS;i++)
+	{
+		randomIndex[i] = i;
+	}
+	shuffle(randomIndex.begin(), randomIndex.end(), default_random_engine(0));
+
+	auto begin = chrono::high_resolution_clock::now();
+	long long hash = 0;
+	for (int i=0;i<NUM_OF_TRIALS;i++)
+	{
+		for (int j=0;j<NUM_OF_ELEMENTS;j++)
+		{
+			hash = hash + container[randomIndex[j]].x[1];
+		}
+	}
+	auto end = chrono::high_resolution_clock::now();
+	long long totalTime = chrono::duration_cast<chrono::nanoseconds>(end - begin).count() / (NUM_OF_TRIALS* NUM_OF_ELEMENTS);
+	printf("%c;%c;%d;%d;%lu;%llu\n",CONTAINER_TYPE, OPERATION, NUM_OF_ELEMENTS, (int)OBJECT_SIZE, totalTime, hash);
+}
+
+template<size_t OBJECT_SIZE>
+void search()
+{
+  switch(CONTAINER_TYPE)
+  {
+    case 'v' :
+    {
+      searchOnContainer<vector<NonPrimitiveType<OBJECT_SIZE>>, OBJECT_SIZE>();
+      break;
+    }
+    case 'l' :
+    {
+      printf("%c;%c;%d;%d;%lu;%llu\n",CONTAINER_TYPE, OPERATION, NUM_OF_ELEMENTS, (int)OBJECT_SIZE, 0, 0);
+      break;
+    }
+    case 'd' :
+    {
+      searchOnContainer<deque<NonPrimitiveType<OBJECT_SIZE>>, OBJECT_SIZE>();
+      break;
+    }
+  }
+}
+
 int main(int argc, char *argv[])
 {
   NUM_OF_ELEMENTS = atoi(argv[1]);
@@ -153,6 +216,15 @@ int main(int argc, char *argv[])
 			iterate<1024>();
 			iterate<4096>();
       break;
+    }
+		case 's' :
+    {
+			search<16>();
+			search<64>();
+			search<256>();
+			search<1024>();
+			search<4096>();
+			break;
     }
   }  
 
