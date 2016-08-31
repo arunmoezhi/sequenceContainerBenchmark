@@ -190,6 +190,85 @@ void search()
   }
 }
 
+template <typename T, size_t OBJECT_SIZE>
+void copyContainer()
+{
+  vector<NonPrimitiveType<OBJECT_SIZE>> containedElements;
+  containedElements.reserve(NUM_OF_ELEMENTS);
+  for(int i=0;i<NUM_OF_ELEMENTS;i++)
+  {
+    containedElements.push_back(*(new NonPrimitiveType<OBJECT_SIZE>));
+  }
+
+  T container;
+	for (int i=0;i<NUM_OF_ELEMENTS;i++)
+	{
+		container.push_back(containedElements[i]);
+	}
+
+  long long hash = 0;
+  auto begin = chrono::high_resolution_clock::now();
+	for (int i=0;i<NUM_OF_TRIALS;i++)
+	{
+    T copy = container;
+    hash = hash + copy.at(0).x[1];
+	}
+  auto end = chrono::high_resolution_clock::now();
+	long long totalTime = chrono::duration_cast<chrono::nanoseconds>(end - begin).count() / NUM_OF_TRIALS;
+	printf("%c;%c;%d;%d;%lu;%llu\n",CONTAINER_TYPE, OPERATION, NUM_OF_ELEMENTS, (int)OBJECT_SIZE, totalTime, hash);
+}
+
+template <typename T, size_t OBJECT_SIZE>
+void copyList()
+{
+  vector<NonPrimitiveType<OBJECT_SIZE>> containedElements;
+  containedElements.reserve(NUM_OF_ELEMENTS);
+  for(int i=0;i<NUM_OF_ELEMENTS;i++)
+  {
+    containedElements.push_back(*(new NonPrimitiveType<OBJECT_SIZE>));
+  }
+
+  list<NonPrimitiveType<OBJECT_SIZE>> container;
+	for (int i=0;i<NUM_OF_ELEMENTS;i++)
+	{
+		container.push_back(containedElements[i]);
+	}
+
+  long long hash = 0;
+  auto begin = chrono::high_resolution_clock::now();
+	for (int i=0;i<NUM_OF_TRIALS;i++)
+	{
+    list<NonPrimitiveType<OBJECT_SIZE>> copy = container;
+    hash = hash + copy.front().x[1];
+	}
+  auto end = chrono::high_resolution_clock::now();
+	long long totalTime = chrono::duration_cast<chrono::nanoseconds>(end - begin).count() / NUM_OF_TRIALS;
+	printf("%c;%c;%d;%d;%lu;%llu\n",CONTAINER_TYPE, OPERATION, NUM_OF_ELEMENTS, (int)OBJECT_SIZE, totalTime, hash);
+}
+
+template<size_t OBJECT_SIZE>
+void copy()
+{
+  switch(CONTAINER_TYPE)
+  {
+    case 'v' :
+    {
+      copyContainer<vector<NonPrimitiveType<OBJECT_SIZE>>, OBJECT_SIZE>();
+      break;
+    }
+    case 'l' :
+    {
+      copyList<list<NonPrimitiveType<OBJECT_SIZE>>, OBJECT_SIZE>();
+      break;
+    }
+    case 'd' :
+    {
+      copyContainer<deque<NonPrimitiveType<OBJECT_SIZE>>, OBJECT_SIZE>();
+      break;
+    }
+  }
+}
+
 int main(int argc, char *argv[])
 {
   NUM_OF_ELEMENTS = atoi(argv[1]);
@@ -224,6 +303,15 @@ int main(int argc, char *argv[])
 			search<256>();
 			search<1024>();
 			search<4096>();
+			break;
+    }
+    case 'c' :
+    {
+      copy<16>();
+			copy<64>();
+			copy<256>();
+			copy<1024>();
+			copy<4096>();
 			break;
     }
   }  

@@ -5,7 +5,7 @@ NUM_OF_TRIALS=100;
 echo "ContainerType;OpType;#OfElements;ObjectSize;time;" >> out-$date$fileType
 for CONTAINER_TYPE in "l" "v" "d"
 do
-	for OPERATION in "a" "i" "s"
+	for OPERATION in "a" "i" "s" "c"
 	do
     for NUM_OF_ELEMENTS in 16 64 256 1024 4096
 		do
